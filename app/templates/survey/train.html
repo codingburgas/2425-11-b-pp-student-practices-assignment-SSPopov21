@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1>Model Training Results</h1>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Training Summary</h5>
+                <p class="card-text">
+                    Model trained on {{ num_samples }} samples.
+                    The visualization below shows the relationship between years of experience and job application success.
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Visualization</h5>
+                <img src="data:image/png;base64,{{ plot_url }}" class="img-fluid" alt="Training Visualization">
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a href="{{ url_for('survey.new_survey') }}" class="btn btn-primary">Submit New Survey</a>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

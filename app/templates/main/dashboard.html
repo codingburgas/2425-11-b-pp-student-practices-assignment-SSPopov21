@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<h1>Табло</h1>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Бързи действия</h5>
+                <a href="{{ url_for('survey.new_survey') }}" class="btn btn-primary">Нова анкета</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Вашите анкети</h5>
+            </div>
+            <div class="card-body">
+                {% if user_surveys %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Индустрия</th>
+                                <th>Успех</th>
+                                <th>Публична</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for survey in user_surveys %}
+                            <tr>
+                                <td>{{ survey.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ survey.industry_type }}</td>
+                                <td>
+                                    {% if survey.success %}
+                                    <span class="badge badge-success">Да</span>
+                                    {% else %}
+                                    <span class="badge badge-danger">Не</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if survey.is_public %}
+                                    <span class="badge badge-info">Публична</span>
+                                    {% else %}
+                                    <span class="badge badge-secondary">Лична</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p>Все още нямате подадени анкети.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Публични анкети</h5>
+            </div>
+            <div class="card-body">
+                {% if public_surveys %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Индустрия</th>
+                                <th>Успех</th>
+                                <th>Потребител</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for survey in public_surveys %}
+                            <tr>
+                                <td>{{ survey.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ survey.industry_type }}</td>
+                                <td>
+                                    {% if survey.success %}
+                                    <span class="badge badge-success">Да</span>
+                                    {% else %}
+                                    <span class="badge badge-danger">Не</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ survey.author.username }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p>Няма налични публични анкети.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

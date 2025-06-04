@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="jumbotron">
+    <h1 class="display-4">Welcome to Job Success Compass</h1>
+    <p class="lead">Predict your job application success using machine learning!</p>
+    <hr class="my-4">
+    <p>Our system uses advanced algorithms to analyze your profile and predict the likelihood of success in your job applications.</p>
+    {% if current_user.is_anonymous %}
+    <p class="lead">
+        <a class="btn btn-primary btn-lg" href="{{ url_for('auth.register') }}" role="button">Get Started</a>
+        <a class="btn btn-secondary btn-lg" href="{{ url_for('auth.login') }}" role="button">Sign In</a>
+    </p>
+    {% else %}
+    <p class="lead">
+        <a class="btn btn-primary btn-lg" href="{{ url_for('survey.new_survey') }}" role="button">Submit Survey</a>
+        <a class="btn btn-secondary btn-lg" href="{{ url_for('main.dashboard') }}" role="button">View Dashboard</a>
+    </p>
+    {% endif %}
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <h3>Submit Surveys</h3>
+        <p>Share your job application experiences to help improve our predictions and help others learn from your journey.</p>
+    </div>
+    <div class="col-md-6">
+        <h3>Get Insights</h3>
+        <p>Receive personalized predictions and visualizations to understand your chances of success.</p>
+    </div>
+</div>
+{% endblock %} 
