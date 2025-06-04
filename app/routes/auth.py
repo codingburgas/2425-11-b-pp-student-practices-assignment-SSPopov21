@@ -3,6 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from app import db
 from app.models.user import User
 from app.models.survey import Survey
+from app.models.job_offer import JobOffer
 from app.forms.auth import LoginForm, RegistrationForm
 from urllib.parse import urlparse
 
@@ -66,9 +67,14 @@ def profile():
 @login_required
 def delete_account():
     try:
-        # Delete user's surveys first
+        # First delete all job offers if user is an employer
+        if current_user.is_employer():
+            JobOffer.query.filter_by(employer_id=current_user.id).delete()
+            
+        # Then delete user's surveys
         Survey.query.filter_by(user_id=current_user.id).delete()
-        # Delete the user
+        
+        # Finally delete the user
         db.session.delete(current_user)
         db.session.commit()
         flash('Вашият профил беше изтрит успешно.')
