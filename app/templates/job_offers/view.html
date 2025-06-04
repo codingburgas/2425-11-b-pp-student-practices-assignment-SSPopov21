@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+        <div class="p-8">
+            <div class="flex justify-between items-start mb-6">
+                <h1 class="text-3xl font-bold">{{ job_offer.title }}</h1>
+                {% if current_user.is_authenticated and current_user.id == job_offer.employer_id %}
+                <div class="flex space-x-2">
+                    <a href="{{ url_for('job_offers.edit_job_offer', id=job_offer.id) }}" 
+                       class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Редактирай
+                    </a>
+                    <form action="{{ url_for('job_offers.toggle_job_offer', id=job_offer.id) }}" method="POST" class="inline">
+                        <button type="submit" 
+                                class="bg-{{ 'red' if job_offer.is_active else 'green' }}-500 hover:bg-{{ 'red' if job_offer.is_active else 'green' }}-700 text-white font-bold py-2 px-4 rounded">
+                            {{ 'Деактивирай' if job_offer.is_active else 'Активирай' }}
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-gray-50 p-4 rounded">
+                    <h3 class="font-semibold text-gray-700">Локация</h3>
+                    <p>{{ job_offer.location }}</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded">
+                    <h3 class="font-semibold text-gray-700">Индустрия</h3>
+                    <p>{{ job_offer.industry_type }}</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded">
+                    <h3 class="font-semibold text-gray-700">Заплата</h3>
+                    <p>{{ job_offer.salary_range or 'Не е посочена' }}</p>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div>
+                    <h2 class="text-xl font-semibold mb-2">Описание на позицията</h2>
+                    <div class="prose max-w-none">
+                        {{ job_offer.description | nl2br }}
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-xl font-semibold mb-2">Изисквания</h2>
+                    <div class="prose max-w-none">
+                        {{ job_offer.requirements | nl2br }}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h3 class="font-semibold text-gray-700">Изискван опит</h3>
+                        <p>{{ job_offer.required_experience }} години</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-700">Образование</h3>
+                        <p>
+                            {% if job_offer.education_level == 1 %}
+                                Средно образование
+                            {% elif job_offer.education_level == 2 %}
+                                Бакалавър
+                            {% elif job_offer.education_level == 3 %}
+                                Магистър
+                            {% else %}
+                                Доктор
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <div class="flex items-center justify-between text-sm text-gray-500">
+                        <div>
+                            Публикувана от: <span class="font-semibold">{{ job_offer.employer.username }}</span>
+                        </div>
+                        <div>
+                            Дата на публикуване: {{ job_offer.created_at.strftime('%d.%m.%Y') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

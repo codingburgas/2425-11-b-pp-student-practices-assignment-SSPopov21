@@ -43,6 +43,7 @@ def create_app(config_class=Config):
     # Import models to ensure they are registered with SQLAlchemy
     from app.models.user import User
     from app.models.survey import Survey
+    from app.models.job_offer import JobOffer
 
     # Register blueprints
     from app.routes.main import bp as main_bp
@@ -56,6 +57,9 @@ def create_app(config_class=Config):
 
     from app.routes.admin import bp as admin_bp
     app.register_blueprint(admin_bp, url_prefix='/admin')
+
+    from app.routes.job_offers import bp as job_offers_bp
+    app.register_blueprint(job_offers_bp, url_prefix='/job-offers')
 
     # Create database tables
     with app.app_context():

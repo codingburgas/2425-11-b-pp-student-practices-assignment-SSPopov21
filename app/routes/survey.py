@@ -9,6 +9,10 @@ bp = Blueprint('survey', __name__)
 @bp.route('/new', methods=['GET', 'POST'])
 @login_required
 def new_survey():
+    # Redirect employers to job offer creation
+    if current_user.is_employer():
+        return redirect(url_for('job_offers.create_job_offer'))
+
     form = SurveyForm()
     if form.validate_on_submit():
         try:
