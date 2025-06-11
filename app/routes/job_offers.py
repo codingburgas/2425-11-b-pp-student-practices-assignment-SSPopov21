@@ -79,4 +79,19 @@ def toggle_job_offer(id):
     db.session.commit()
     status = 'активирана' if job_offer.is_active else 'деактивирана'
     flash(f'Обявата е {status} успешно!', 'success')
-    return redirect(url_for('job_offers.view_job_offer', id=id)) 
+    return redirect(url_for('job_offers.view_job_offer', id=id))
+
+@bp.route('/job-offers/<int:id>/delete', methods=['POST'])
+@login_required
+def delete_job_offer(id):
+    """Delete a job offer (owner only)"""
+    job_offer = JobOffer.query.get_or_404(id)
+    
+    if job_offer.employer_id != current_user.id:
+        flash('Нямате право да изтриете тази обява.', 'error')
+        return redirect(url_for('job_offers.view_job_offer', id=id))
+    
+    db.session.delete(job_offer)
+    db.session.commit()
+    flash('Обявата е изтрита успешно!', 'success')
+    return redirect(url_for('job_offers.list_jobs')) 

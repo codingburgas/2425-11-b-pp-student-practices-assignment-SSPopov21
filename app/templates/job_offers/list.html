@@ -27,10 +27,20 @@
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-sm text-gray-500">Публикувана от {{ job.employer.username }}</span>
-                    <a href="{{ url_for('job_offers.view_job_offer', id=job.id) }}" 
-                       class="bg-blue-500 hover:bg-blue-700 text-white text-sm font-bold py-1 px-3 rounded">
-                        Детайли
-                    </a>
+                    <div class="flex space-x-2">
+                        <a href="{{ url_for('job_offers.view_job_offer', id=job.id) }}" 
+                           class="bg-blue-500 hover:bg-blue-700 text-white text-sm font-bold py-1 px-3 rounded">
+                            Детайли
+                        </a>
+                        {% if current_user.is_authenticated and current_user.id == job.employer_id %}
+                        <form action="{{ url_for('job_offers.delete_job_offer', id=job.id) }}" method="POST" class="inline" onsubmit="return confirm('Сигурни ли сте, че искате да изтриете тази обява?');">
+                            <button type="submit" 
+                                    class="bg-red-500 hover:bg-red-700 text-white text-sm font-bold py-1 px-3 rounded">
+                                Изтрий
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
