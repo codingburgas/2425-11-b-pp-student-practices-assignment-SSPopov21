@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, IntegerField, SelectField, SubmitField
-from wtforms.validators import DataRequired, NumberRange, Length
+from wtforms.validators import DataRequired, NumberRange, Length, Optional
 
 class JobApplicationForm(FlaskForm):
     years_experience = IntegerField('Години опит', 
@@ -14,8 +14,19 @@ class JobApplicationForm(FlaskForm):
                                     (5, 'Доктор')
                                 ],
                                 validators=[DataRequired()])
+    industry_type = SelectField('Индустрия',
+                              choices=[
+                                  ('IT', 'Информационни технологии'),
+                                  ('Finance', 'Финанси'),
+                                  ('Healthcare', 'Здравеопазване'),
+                                  ('Education', 'Образование'),
+                                  ('Manufacturing', 'Производство'),
+                                  ('Retail', 'Търговия'),
+                                  ('Other', 'Друго')
+                              ],
+                              validators=[DataRequired()])
     skills = TextAreaField('Умения (разделени със запетая)',
-                          validators=[DataRequired(), Length(min=3, max=500)])
+                          validators=[Optional()])
     certifications = IntegerField('Брой сертификати',
                                 validators=[DataRequired(), NumberRange(min=0)])
     language_proficiency = SelectField('Ниво на владеене на чужди езици',
@@ -32,5 +43,5 @@ class JobApplicationForm(FlaskForm):
     prev_job_changes = IntegerField('Брой предишни работни места',
                                   validators=[DataRequired(), NumberRange(min=0)])
     motivation_letter = TextAreaField('Мотивационно писмо',
-                                    validators=[DataRequired(), Length(min=100, max=2000)])
+                                    validators=[Optional()])
     submit = SubmitField('Кандидатствай')

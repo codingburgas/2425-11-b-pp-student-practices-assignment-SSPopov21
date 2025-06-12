@@ -11,16 +11,16 @@
 
             {% if prediction_available %}
             <div class="px-4 py-5 sm:px-6 bg-gray-50">
-                <div class="rounded-md bg-blue-50 p-4">
+                <div class="rounded-md {% if success_probability >= 0.7 %}bg-green-50{% elif success_probability >= 0.4 %}bg-yellow-50{% else %}bg-red-50{% endif %} p-4">
                     <div class="flex">
                         <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <svg class="h-5 w-5 {% if success_probability >= 0.7 %}text-green-400{% elif success_probability >= 0.4 %}text-yellow-400{% else %}text-red-400{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                             </svg>
                         </div>
                         <div class="ml-3">
-                            <h3 class="text-sm font-medium text-blue-800">Прогноза за успех</h3>
-                            <div class="mt-2 text-sm text-blue-700">
+                            <h3 class="text-sm font-medium {% if success_probability >= 0.7 %}text-green-800{% elif success_probability >= 0.4 %}text-yellow-800{% else %}text-red-800{% endif %}">Прогноза за успех</h3>
+                            <div class="mt-2 text-sm {% if success_probability >= 0.7 %}text-green-700{% elif success_probability >= 0.4 %}text-yellow-700{% else %}text-red-700{% endif %}">
                                 <p>Вероятност за одобрение: <span class="font-semibold">{{ "%.1f"|format(success_probability * 100) }}%</span></p>
                             </div>
                         </div>
@@ -38,7 +38,7 @@
                             </div>
                             <div class="ml-4 w-32">
                                 <div class="relative h-2 bg-gray-200 rounded">
-                                    <div class="absolute h-2 bg-blue-500 rounded" style="width: {{ importance * 100 }}%"></div>
+                                    <div class="absolute h-2 {% if success_probability >= 0.7 %}bg-green-500{% elif success_probability >= 0.4 %}bg-yellow-500{% else %}bg-red-500{% endif %} rounded" style="width: {{ importance * 100 }}%"></div>
                                 </div>
                             </div>
                         </div>
@@ -75,13 +75,13 @@
                                 {% endif %}
                             </div>
 
-                            <div class="col-span-6">
-                                <label for="skills" class="block text-sm font-medium text-gray-700">{{ form.skills.label }}</label>
+                            <div class="col-span-6 sm:col-span-3">
+                                <label for="industry_type" class="block text-sm font-medium text-gray-700">{{ form.industry_type.label }}</label>
                                 <div class="mt-1">
-                                    {{ form.skills(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md", rows="3") }}
+                                    {{ form.industry_type(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md") }}
                                 </div>
-                                {% if form.skills.errors %}
-                                <p class="mt-2 text-sm text-red-600">{{ form.skills.errors[0] }}</p>
+                                {% if form.industry_type.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ form.industry_type.errors[0] }}</p>
                                 {% endif %}
                             </div>
 
@@ -125,15 +125,8 @@
                                 {% endif %}
                             </div>
 
-                            <div class="col-span-6">
-                                <label for="motivation_letter" class="block text-sm font-medium text-gray-700">{{ form.motivation_letter.label }}</label>
-                                <div class="mt-1">
-                                    {{ form.motivation_letter(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md", rows="5") }}
-                                </div>
-                                {% if form.motivation_letter.errors %}
-                                <p class="mt-2 text-sm text-red-600">{{ form.motivation_letter.errors[0] }}</p>
-                                {% endif %}
-                            </div>
+                            {{ form.skills(type="hidden") }}
+                            {{ form.motivation_letter(type="hidden") }}
                         </div>
                     </div>
 

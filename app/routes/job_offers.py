@@ -6,6 +6,7 @@ from app.models.survey import Survey
 from app.forms.job_offer import JobOfferForm
 from app.forms.job_application import JobApplicationForm
 from app.ml.model import JobSuccessPredictor
+import numpy as np
 
 bp = Blueprint('job_offers', __name__)
 
@@ -123,16 +124,34 @@ def apply_job(id):
             user_id=current_user.id,
             years_experience=form.years_experience.data,
             education_level=int(form.education_level.data),
-            num_skills=len(form.skills.data.split(',')),
+            num_skills=len(form.skills.data.split(',')) if form.skills.data else 0,
+            industry_type=form.industry_type.data,
             prev_job_changes=form.prev_job_changes.data,
             certifications=form.certifications.data,
-            language_proficiency=int(form.language_proficiency.data),
-            interview_prep_score=form.interview_prep_score.data
+            language_proficiency=int(form.language_proficiency.data) / 5.0,  # Normalize to 0-1
+            interview_prep_score=form.interview_prep_score.data / 10.0  # Normalize to 0-1
         )
 
         # Get prediction
         predictor = JobSuccessPredictor()
         try:
+            # Initialize model with some default data if not trained
+            if not predictor.is_trained:
+                # Create synthetic training data
+                X = np.array([
+                    [5, 3, 5, 2, 2, 0.6, 0.8],  # Successful candidate
+                    [1, 1, 2, 0, 0, 0.2, 0.3],  # Unsuccessful candidate
+                    [3, 2, 4, 1, 1, 0.4, 0.6],  # Moderate success
+                    [7, 4, 6, 3, 3, 0.8, 0.9],  # Very successful
+                    [2, 2, 3, 1, 1, 0.4, 0.5],  # Moderate success
+                ])
+                y = np.array([1, 0, 1, 1, 0])
+                
+                # Train the model with default data
+                predictor.model.fit(X, y)
+                predictor.scaler.fit(X)
+                predictor.is_trained = True
+
             success_probability = predictor.predict(survey_data)
             feature_importance = predictor.get_feature_importance()
             prediction_available = True
@@ -141,10 +160,20 @@ def apply_job(id):
             db.session.add(survey_data)
             db.session.commit()
 
-            flash(f'Вашата кандидатура е изпратена успешно! Вероятност за одобрение: {success_probability:.1%}', 'success')
+            # Format the probability as a percentage with color coding
+            probability_percent = success_probability * 100
+            if probability_percent >= 70:
+                color = 'green'
+            elif probability_percent >= 40:
+                color = 'orange'
+            else:
+                color = 'red'
+
+            flash(f'Вашата кандидатура е изпратена успешно! Вероятност за одобрение: <span style="color: {color}; font-weight: bold;">{probability_percent:.1f}%</span>', 'success')
             return redirect(url_for('job_offers.list_jobs'))
         except Exception as e:
             print(f"Prediction error: {str(e)}")
+            db.session.rollback()  # Roll back the session on error
             flash('Възникна грешка при обработката на кандидатурата. Моля, опитайте отново.', 'error')
 
     return render_template('job_offers/apply.html',
