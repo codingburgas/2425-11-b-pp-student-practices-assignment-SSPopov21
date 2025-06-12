@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import React, { useState } from "react";
 import { 
   Card, 
   CardContent, 
@@ -16,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type JobApplication = {
   id: number;
@@ -26,6 +26,7 @@ type JobApplication = {
   priority: 'low' | 'medium' | 'high';
   notes?: string;
   skills: string[];
+  creator: string;
 };
 
 const JobList = () => {
@@ -44,7 +45,8 @@ const JobList = () => {
       status: "interview",
       priority: "high",
       notes: "Second interview scheduled for next week",
-      skills: ["React", "TypeScript", "Tailwind CSS"]
+      skills: ["React", "TypeScript", "Tailwind CSS"],
+      creator: "John Doe"
     },
     {
       id: 2,
@@ -53,7 +55,8 @@ const JobList = () => {
       date: "2025-05-15",
       status: "applied",
       priority: "medium",
-      skills: ["Python", "TensorFlow", "Data Science"]
+      skills: ["Python", "TensorFlow", "Data Science"],
+      creator: "Jane Smith"
     },
     {
       id: 3,
@@ -63,7 +66,8 @@ const JobList = () => {
       status: "offer",
       priority: "high",
       notes: "Received offer, negotiating salary",
-      skills: ["Node.js", "React", "MongoDB"]
+      skills: ["Node.js", "React", "MongoDB"],
+      creator: "Mike Johnson"
     },
     {
       id: 4,
@@ -73,7 +77,8 @@ const JobList = () => {
       status: "rejected",
       priority: "low",
       notes: "Position filled internally",
-      skills: ["Docker", "Kubernetes", "AWS"]
+      skills: ["Docker", "Kubernetes", "AWS"],
+      creator: "Sarah Wilson"
     }
   ]);
 
@@ -99,23 +104,27 @@ const JobList = () => {
     });
   };
 
-  const getStatusColor = (status: JobApplication['status']) => {
+  const getStatusClass = (status: JobApplication['status']) => {
     switch (status) {
-      case 'applied': return 'bg-blue-100 text-blue-800';
-      case 'interview': return 'bg-yellow-100 text-yellow-800';
-      case 'offer': return 'bg-green-100 text-green-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'applied': return 'bg-blue-500 hover:bg-blue-600';
+      case 'interview': return 'bg-yellow-500 hover:bg-yellow-600';
+      case 'offer': return 'bg-green-500 hover:bg-green-600';
+      case 'rejected': return 'bg-red-500 hover:bg-red-600';
+      default: return 'bg-gray-500 hover:bg-gray-600';
     }
   };
 
-  const getPriorityColor = (priority: JobApplication['priority']) => {
+  const getPriorityClass = (priority: JobApplication['priority']) => {
     switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'high': return 'bg-red-500 hover:bg-red-600';
+      case 'medium': return 'bg-yellow-500 hover:bg-yellow-600';
+      case 'low': return 'bg-green-500 hover:bg-green-600';
+      default: return 'bg-gray-500 hover:bg-gray-600';
     }
+  };
+
+  const handleDelete = (id: number) => {
+    setApplications(applications.filter(app => app.id !== id));
   };
 
   return (
@@ -158,6 +167,12 @@ const JobList = () => {
                 >
                   Priority
                 </TableHead>
+                <TableHead 
+                  onClick={() => requestSort('creator')}
+                  className="cursor-pointer hover:bg-gray-50"
+                >
+                  Created By
+                </TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -168,17 +183,25 @@ const JobList = () => {
                   <TableCell>{application.position}</TableCell>
                   <TableCell>{new Date(application.date).toLocaleDateString()}</TableCell>
                   <TableCell>
-                    <Badge className={getStatusColor(application.status)}>
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getStatusClass(application.status)}`}>
                       {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
-                    </Badge>
+                    </span>
                   </TableCell>
                   <TableCell>
-                    <Badge className={getPriorityColor(application.priority)}>
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getPriorityClass(application.priority)}`}>
                       {application.priority.charAt(0).toUpperCase() + application.priority.slice(1)}
-                    </Badge>
+                    </span>
                   </TableCell>
-                  <TableCell>
+                  <TableCell>{application.creator}</TableCell>
+                  <TableCell className="space-x-2">
                     <Button variant="outline" size="sm">Edit</Button>
+                    <Button 
+                      variant="destructive" 
+                      size="sm"
+                      onClick={() => handleDelete(application.id)}
+                    >
+                      Delete
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}

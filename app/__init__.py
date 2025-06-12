@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_bootstrap import Bootstrap
+from flask_wtf.csrf import CSRFProtect
 from config import Config
 import os
 
@@ -14,6 +15,7 @@ login_manager.login_view = 'auth.login'
 login_manager.login_message = 'Please log in to access this page.'
 mail = Mail()
 bootstrap = Bootstrap()
+csrf = CSRFProtect()
 
 @login_manager.user_loader
 def load_user(id):
@@ -39,6 +41,7 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
     mail.init_app(app)
     bootstrap.init_app(app)
+    csrf.init_app(app)
 
     # Import models to ensure they are registered with SQLAlchemy
     from app.models.user import User
