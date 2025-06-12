@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useJobSuccessModel, JobApplicationData, ModelPrediction } from "@/utils/mlModel";
@@ -7,11 +6,44 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, L
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ChartLine } from "@/components/CustomIcons";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { InfoCircle } from "lucide-react";
 
 const PredictionsPage = () => {
+  const location = useLocation();
+  const [skillPrediction, setSkillPrediction] = useState<{
+    probability: number;
+    message: string;
+  } | null>(null);
+
+  useEffect(() => {
+    // Check if we have skills data in the location state
+    const skills = location.state?.skills;
+    if (skills) {
+      // Make API call to get prediction
+      fetch('/job-offers/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ skills }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setSkillPrediction({
+              probability: data.probability,
+              message: data.message,
+            });
+          }
+        })
+        .catch(err => console.error('Error getting prediction:', err));
+    }
+  }, [location.state]);
+
   // Mock data - This would be replaced with real data from your application
   const [applications] = useState<JobApplicationData[]>([
     {
@@ -111,6 +143,40 @@ const PredictionsPage = () => {
             </Button>
           </Link>
         </div>
+
+        {skillPrediction && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <InfoCircle className="h-5 w-5" />
+                Your Prediction Result
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <Alert>
+                  <AlertTitle>Success Probability</AlertTitle>
+                  <AlertDescription>{skillPrediction.message}</AlertDescription>
+                </Alert>
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium">Chance of Success</span>
+                    <span className="text-sm font-medium">{skillPrediction.probability}%</span>
+                  </div>
+                  <Progress 
+                    value={skillPrediction.probability} 
+                    className="h-2"
+                    indicatorClassName={
+                      skillPrediction.probability > 70 ? "bg-green-500" :
+                      skillPrediction.probability > 40 ? "bg-yellow-500" :
+                      "bg-red-500"
+                    }
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="md:col-span-3">

@@ -19,7 +19,7 @@
 
         <div class="mt-8 grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
             {% for job in job_offers %}
-            <div class="bg-white overflow-hidden shadow rounded-lg divide-y divide-gray-200">
+            <div class="bg-white overflow-hidden shadow rounded-lg divide-y divide-gray-200" id="job-card-{{ job.id }}">
                 <div class="px-4 py-5 sm:px-6">
                     <h3 class="text-lg leading-6 font-medium text-gray-900">
                         {{ job.title }}
@@ -58,13 +58,34 @@
                     </div>
                     <div class="mt-4 flex justify-between items-center">
                         {% if current_user.is_authenticated and current_user.is_worker() %}
-                        <a href="{{ url_for('job_offers.apply_job', id=job.id) }}"
-                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            Кандидатствай
-                            <svg class="ml-2 -mr-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
+                        <div class="flex flex-col space-y-2 w-full">
+                            <div id="prediction-result-{{ job.id }}" class="hidden">
+                                <div class="bg-blue-50 p-4 rounded-md mb-2">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h3 class="text-sm font-medium text-blue-800">Вероятност за одобрение</h3>
+                                            <div class="mt-2 text-sm text-blue-700">
+                                                <p class="prediction-text"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button
+                                onclick="getPrediction({{ job.id }})"
+                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-full justify-center"
+                            >
+                                Кандидатствай
+                                <svg class="ml-2 -mr-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
                         {% endif %}
                         {% if current_user.is_authenticated and (current_user.id == job.employer_id or current_user.is_admin) %}
                         <form action="{{ url_for('job_offers.delete_job_offer', id=job.id) }}" method="POST" class="inline">
@@ -95,4 +116,59 @@
         </div>
     </div>
 </div>
+
+<script>
+async function getPrediction(jobId) {
+    const predictionDiv = document.getElementById(`prediction-result-${jobId}`);
+    const predictionText = predictionDiv.querySelector('.prediction-text');
+    
+    try {
+        // Show loading state
+        predictionDiv.classList.remove('hidden');
+        predictionText.innerHTML = '<span class="text-blue-700">Изчисляване на вероятност...</span>';
+        
+        const response = await fetch(`/job-offers/quick-predict/${jobId}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            // Set the prediction text with appropriate color based on probability
+            const probability = data.probability;
+            let color;
+            if (probability >= 70) {
+                color = 'text-green-700';
+            } else if (probability >= 40) {
+                color = 'text-yellow-700';
+            } else {
+                color = 'text-red-700';
+            }
+            
+            predictionText.innerHTML = `<span class="${color} font-bold">${probability}%</span>`;
+            
+            // After 2 seconds, redirect to the application form
+            setTimeout(() => {
+                window.location.href = data.redirect_url;
+            }, 2000);
+        } else {
+            // Show error message
+            predictionText.innerHTML = `<span class="text-red-700">Грешка: ${data.error || 'Неуспешно изчисление'}</span>`;
+            
+            // Hide error after 3 seconds
+            setTimeout(() => {
+                predictionDiv.classList.add('hidden');
+            }, 3000);
+        }
+    } catch (error) {
+        // Show error message
+        predictionDiv.classList.remove('hidden');
+        predictionText.innerHTML = '<span class="text-red-700">Възникна грешка при изчислението</span>';
+        
+        // Hide error after 3 seconds
+        setTimeout(() => {
+            predictionDiv.classList.add('hidden');
+        }, 3000);
+        
+        console.error('Error:', error);
+    }
+}
+</script>
 {% endblock %} 

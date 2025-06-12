@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +10,7 @@ import AddJobPage from "./pages/AddJobPage";
 import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 import PredictionsPage from "./pages/PredictionsPage";
+import SkillsForm from "./components/SkillsForm";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +26,7 @@ const App = () => (
           <Route path="/add" element={<AddJobPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/predictions" element={<PredictionsPage />} />
+          <Route path="/skills" element={<SkillsForm />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

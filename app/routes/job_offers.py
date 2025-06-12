@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, request
+from flask import Blueprint, render_template, flash, redirect, url_for, request, jsonify
 from flask_login import login_required, current_user
 from app import db
 from app.models.job_offer import JobOffer
@@ -181,4 +181,107 @@ def apply_job(id):
                          form=form,
                          success_probability=success_probability,
                          feature_importance=feature_importance,
-                         prediction_available=prediction_available) 
+                         prediction_available=prediction_available)
+
+@bp.route('/quick-predict/<int:job_id>', methods=['GET'])
+def quick_predict(job_id):
+    """Get a quick prediction without filling the full application"""
+    job = JobOffer.query.get_or_404(job_id)
+    
+    # Create a simple survey data object for prediction
+    class SurveyData:
+        def __init__(self):
+            self.years_experience = 2  # Default to 2 years
+            self.education_level = 2  # Default to Bachelor's degree
+            self.num_skills = 3  # Default to 3 skills
+            self.prev_job_changes = 1  # Default to 1 previous job
+            self.certifications = 1  # Default to 1 certification
+            self.language_proficiency = 0.6  # Default to intermediate
+            self.interview_prep_score = 0.75  # Default to good preparation
+    
+    predictor = JobSuccessPredictor()
+    survey_data = SurveyData()
+    
+    try:
+        # Initialize model with default training data if not trained
+        if not predictor.is_trained:
+            # Create synthetic training data
+            X = np.array([
+                [5, 3, 5, 2, 2, 0.6, 0.8],  # Successful candidate
+                [1, 1, 2, 0, 0, 0.2, 0.3],  # Unsuccessful candidate
+                [3, 2, 4, 1, 1, 0.4, 0.6],  # Moderate success
+                [7, 4, 6, 3, 3, 0.8, 0.9],  # Very successful
+                [2, 2, 3, 1, 1, 0.4, 0.5],  # Moderate success
+            ])
+            y = np.array([1, 0, 1, 1, 0])
+            
+            # Train the model with default data
+            predictor.model.fit(X, y)
+            predictor.scaler.fit(X)
+            predictor.is_trained = True
+        
+        # Convert survey data to feature vector
+        features = np.array([[
+            survey_data.years_experience,
+            survey_data.education_level,
+            survey_data.num_skills,
+            survey_data.prev_job_changes,
+            survey_data.certifications,
+            survey_data.language_proficiency,
+            survey_data.interview_prep_score
+        ]])
+        
+        # Scale features if model is trained with a scaler
+        if predictor.scaler:
+            features = predictor.scaler.transform(features)
+        
+        success_probability = predictor.model.predict_proba(features)[0][1]
+        
+        return jsonify({
+            'success': True,
+            'probability': round(success_probability * 100, 1),
+            'job_id': job_id,
+            'redirect_url': url_for('job_offers.apply_job', id=job_id)
+        })
+    except Exception as e:
+        print(f"Prediction error: {str(e)}")  # Log the error
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@bp.route('/predict', methods=['POST'])
+def predict_success():
+    data = request.get_json()
+    skills = data.get('skills', [])
+    
+    # Create a simple survey data object for prediction
+    class SurveyData:
+        def __init__(self, skills):
+            self.years_experience = 0  # Will be calculated based on skills
+            self.education_level = 2  # Default to Bachelor's degree
+            self.num_skills = len(skills)
+            self.prev_job_changes = 0  # Default
+            self.certifications = 0  # Default
+            self.language_proficiency = 1  # Default to intermediate
+            self.interview_prep_score = 75  # Default to good preparation
+            
+            # Calculate years of experience based on number of skills
+            # Assuming more skills generally correlate with more experience
+            self.years_experience = min(10, self.num_skills * 1.5)
+    
+    predictor = JobSuccessPredictor()
+    survey_data = SurveyData(skills)
+    
+    try:
+        success_probability = predictor.predict(survey_data)
+        return jsonify({
+            'success': True,
+            'probability': round(success_probability * 100, 1),
+            'message': f'Based on your skills, your estimated chance of being hired is {round(success_probability * 100, 1)}%'
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500 
