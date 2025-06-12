@@ -1,70 +1,83 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold">Обяви за работа</h1>
-        {% if current_user.is_authenticated and current_user.is_employer() %}
-        <a href="{{ url_for('job_offers.create_job_offer') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-            Публикувай обява
-        </a>
-        {% endif %}
-    </div>
+<div class="min-h-full py-12 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="pb-5 border-b border-gray-200 sm:flex sm:items-center sm:justify-between">
+            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                Обяви за работа
+            </h2>
+            {% if current_user.is_authenticated and current_user.is_employer() %}
+            <div class="mt-3 sm:mt-0 sm:ml-4">
+                <a href="{{ url_for('job_offers.create_job_offer') }}"
+                   class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Нова обява
+                </a>
+            </div>
+            {% endif %}
+        </div>
 
-    {% if job_offers %}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for job in job_offers %}
-        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-            <div class="p-6">
-                <h2 class="text-xl font-semibold mb-2">{{ job.title }}</h2>
-                <p class="text-gray-600 mb-4">{{ job.description[:150] }}...</p>
-                <div class="flex flex-wrap gap-2 mb-4">
-                    <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm">{{ job.location }}</span>
-                    <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm">{{ job.industry_type }}</span>
-                    {% if job.salary_range %}
-                    <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm">{{ job.salary_range }}</span>
+        <div class="mt-8 grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
+            {% for job in job_offers %}
+            <div class="bg-white overflow-hidden shadow rounded-lg divide-y divide-gray-200">
+                <div class="px-4 py-5 sm:px-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        {{ job.title }}
+                    </h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                        {{ job.location }} • {{ job.salary_range }}
+                    </p>
+                </div>
+                <div class="px-4 py-4 sm:px-6">
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                        <div class="sm:col-span-1">
+                            <dt class="text-sm font-medium text-gray-500">Индустрия</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.industry_type }}</dd>
+                        </div>
+                        <div class="sm:col-span-1">
+                            <dt class="text-sm font-medium text-gray-500">Изисква се опит</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.required_experience }} години</dd>
+                        </div>
+                        <div class="sm:col-span-1">
+                            <dt class="text-sm font-medium text-gray-500">Образование</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.education_level }}</dd>
+                        </div>
+                        <div class="sm:col-span-1">
+                            <dt class="text-sm font-medium text-gray-500">Публикувана</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.created_at.strftime('%d/%m/%Y') }}</dd>
+                        </div>
+                    </dl>
+                </div>
+                <div class="px-4 py-4 sm:px-6 bg-gray-50">
+                    <div class="text-sm">
+                        <p class="font-medium text-gray-500">Описание</p>
+                        <p class="mt-1 text-gray-900">{{ job.description[:200] }}{% if job.description|length > 200 %}...{% endif %}</p>
+                    </div>
+                    {% if current_user.is_authenticated and current_user.is_worker() %}
+                    <div class="mt-4">
+                        <a href="{{ url_for('job_offers.apply_job', id=job.id) }}"
+                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Кандидатствай
+                            <svg class="ml-2 -mr-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                    </div>
                     {% endif %}
                 </div>
-                
-                <div class="mb-4">
-                    <h3 class="text-sm font-semibold text-gray-700 mb-2">Основни изисквания:</h3>
-                    <p class="text-gray-600 text-sm">{{ job.requirements[:200] }}...</p>
-                    <div class="mt-2 flex gap-2">
-                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">{{ job.required_experience }} години опит</span>
-                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                            {% if job.education_level == 1 %}Средно образование
-                            {% elif job.education_level == 2 %}Бакалавър
-                            {% elif job.education_level == 3 %}Магистър
-                            {% else %}Доктор{% endif %}
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-500">Публикувана от {{ job.employer.username }}</span>
-                    <div class="flex space-x-2">
-                        <a href="{{ url_for('job_offers.view_job_offer', id=job.id) }}" 
-                           class="bg-blue-500 hover:bg-blue-700 text-white text-sm font-bold py-1 px-3 rounded">
-                            Детайли
-                        </a>
-                        {% if current_user.is_authenticated and current_user.id == job.employer_id %}
-                        <form action="{{ url_for('job_offers.delete_job_offer', id=job.id) }}" method="POST" class="inline" onsubmit="return confirm('Сигурни ли сте, че искате да изтриете тази обява?');">
-                            <button type="submit" 
-                                    class="bg-red-500 hover:bg-red-700 text-white text-sm font-bold py-1 px-3 rounded">
-                                Изтрий
-                            </button>
-                        </form>
-                        {% endif %}
-                    </div>
-                </div>
             </div>
+            {% else %}
+            <div class="text-center col-span-full py-12">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">Няма активни обяви</h3>
+                <p class="mt-1 text-sm text-gray-500">
+                    В момента няма публикувани обяви за работа.
+                </p>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
-    {% else %}
-    <div class="text-center py-8">
-        <p class="text-gray-600">Няма активни обяви за работа в момента.</p>
-    </div>
-    {% endif %}
 </div>
 {% endblock %} 

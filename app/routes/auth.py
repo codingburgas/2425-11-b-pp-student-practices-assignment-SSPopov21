@@ -4,7 +4,8 @@ from app import db
 from app.models.user import User
 from app.models.survey import Survey
 from app.models.job_offer import JobOffer
-from app.forms.auth import LoginForm, RegistrationForm
+from app.forms.auth import LoginForm, RegistrationForm, ProfileUpdateForm
+from app.ml.model import JobSuccessPredictor
 from urllib.parse import urlparse
 
 bp = Blueprint('auth', __name__)
@@ -28,6 +29,7 @@ def login():
     return render_template('auth/login.html', title='Вход', form=form)
 
 @bp.route('/logout')
+@login_required
 def logout():
     logout_user()
     flash('Успешно излязохте от профила си.')
@@ -57,24 +59,58 @@ def register():
             return redirect(url_for('auth.register'))
     return render_template('auth/register.html', title='Регистрация', form=form)
 
-@bp.route('/profile')
+@bp.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    surveys_count = Survey.query.filter_by(user_id=current_user.id).count()
-    return render_template('auth/profile.html', title='Профил', surveys_count=surveys_count)
+    form = ProfileUpdateForm(current_user.username, current_user.email)
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        if form.new_password.data:
+            current_user.set_password(form.new_password.data)
+        db.session.commit()
+        flash('Промените са запазени успешно.')
+        return redirect(url_for('auth.profile'))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.email.data = current_user.email
 
-@bp.route('/delete_account', methods=['POST'])
+    # Get success prediction for workers
+    success_probability = None
+    feature_importance = None
+    prediction_available = False
+    
+    if current_user.role == 'worker':
+        # Get user's latest survey
+        latest_survey = Survey.query.filter_by(user_id=current_user.id).order_by(Survey.created_at.desc()).first()
+        if latest_survey:
+            predictor = JobSuccessPredictor()
+            try:
+                success_probability = predictor.predict(latest_survey)
+                feature_importance = predictor.get_feature_importance()
+                prediction_available = True
+            except Exception as e:
+                print(f"Prediction error: {str(e)}")
+
+    return render_template('auth/profile.html',
+                         title='Профил',
+                         form=form,
+                         success_probability=success_probability,
+                         feature_importance=feature_importance,
+                         prediction_available=prediction_available)
+
+@bp.route('/delete_profile')
 @login_required
-def delete_account():
+def delete_profile():
     try:
-        # First delete all job offers if user is an employer
-        if current_user.is_employer():
-            JobOffer.query.filter_by(employer_id=current_user.id).delete()
-            
-        # Then delete user's surveys
+        # Delete user's surveys
         Survey.query.filter_by(user_id=current_user.id).delete()
         
-        # Finally delete the user
+        # Delete user's job offers if they're an employer
+        if current_user.is_employer():
+            JobOffer.query.filter_by(employer_id=current_user.id).delete()
+        
+        # Delete the user
         db.session.delete(current_user)
         db.session.commit()
         flash('Вашият профил беше изтрит успешно.')
@@ -82,5 +118,5 @@ def delete_account():
     except Exception as e:
         db.session.rollback()
         flash('Възникна грешка при изтриването на профила. Моля, опитайте отново.')
-        print(f"Account deletion error: {str(e)}")
+        print(f"Profile deletion error: {str(e)}")
         return redirect(url_for('auth.profile')) 

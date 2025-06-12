@@ -1,71 +1,138 @@
 {% extends "base.html" %}
 
-{% block app_content %}
-<div class="container">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Профил</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-4">
-                        <div class="col-sm-4"><strong>Потребителско име:</strong></div>
-                        <div class="col-sm-8">{{ current_user.username }}</div>
-                    </div>
-                    <div class="row mb-4">
-                        <div class="col-sm-4"><strong>Имейл:</strong></div>
-                        <div class="col-sm-8">{{ current_user.email }}</div>
-                    </div>
-                    <div class="row mb-4">
-                        <div class="col-sm-4"><strong>Тип потребител:</strong></div>
-                        <div class="col-sm-8">
-                            {% if current_user.is_worker() %}
-                                <span class="badge badge-primary">Търсещ работа</span>
-                            {% else %}
-                                <span class="badge badge-success">Работодател</span>
-                            {% endif %}
+{% block content %}
+<div class="min-h-full py-12 sm:px-6 lg:px-8">
+    <div class="max-w-3xl mx-auto">
+        <div class="bg-white shadow sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6">
+                <h2 class="text-lg leading-6 font-medium text-gray-900">Профил</h2>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Лична информация и настройки</p>
+            </div>
+
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div class="px-4 py-3 sm:px-6">
+                {% for message in messages %}
+                <div class="rounded-md bg-green-50 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-green-800">{{ message }}</p>
                         </div>
                     </div>
-                    <div class="row mb-4">
-                        <div class="col-sm-4"><strong>Дата на регистрация:</strong></div>
-                        <div class="col-sm-8">{{ current_user.created_at.strftime('%d/%m/%Y') }}</div>
-                    </div>
-                    <div class="row mb-4">
-                        <div class="col-sm-4"><strong>Брой анкети:</strong></div>
-                        <div class="col-sm-8">{{ surveys_count }}</div>
-                    </div>
                 </div>
-                <div class="card-footer">
-                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteAccountModal">
-                        Изтрий профила
-                    </button>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <div class="border-t border-gray-200">
+                <form method="POST" class="divide-y divide-gray-200">
+                    {{ form.hidden_tag() }}
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="grid grid-cols-6 gap-6">
+                            <div class="col-span-6 sm:col-span-4">
+                                <label for="username" class="block text-sm font-medium text-gray-700">Потребителско име</label>
+                                <div class="mt-1">
+                                    {{ form.username(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md") }}
+                                </div>
+                                {% if form.username.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ form.username.errors[0] }}</p>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-span-6 sm:col-span-4">
+                                <label for="email" class="block text-sm font-medium text-gray-700">Имейл адрес</label>
+                                <div class="mt-1">
+                                    {{ form.email(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md") }}
+                                </div>
+                                {% if form.email.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ form.email.errors[0] }}</p>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-span-6 sm:col-span-4">
+                                <label for="new_password" class="block text-sm font-medium text-gray-700">Нова парола (незадължително)</label>
+                                <div class="mt-1">
+                                    {{ form.new_password(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md") }}
+                                </div>
+                                {% if form.new_password.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ form.new_password.errors[0] }}</p>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-span-6 sm:col-span-4">
+                                <label for="new_password2" class="block text-sm font-medium text-gray-700">Повтори новата парола</label>
+                                <div class="mt-1">
+                                    {{ form.new_password2(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md") }}
+                                </div>
+                                {% if form.new_password2.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ form.new_password2.errors[0] }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="px-4 py-3 bg-gray-50 text-right sm:px-6 flex justify-between items-center">
+                        <button type="button" onclick="confirmDelete()" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                            Изтрий профила
+                        </button>
+                        {{ form.submit(class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500") }}
+                    </div>
+                </form>
+            </div>
+
+            {% if current_user.role == 'worker' and prediction_available %}
+            <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Прогноза за успех</h3>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Вероятност за успех</p>
+                            <p class="mt-1 text-3xl font-semibold text-gray-900">{{ "%.1f"|format(success_probability * 100) }}%</p>
+                        </div>
+                        <div class="h-16 w-16">
+                            <svg class="h-full w-full text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    {% if feature_importance %}
+                    <div class="mt-6">
+                        <h4 class="text-sm font-medium text-gray-500 mb-3">Най-важни фактори</h4>
+                        <div class="space-y-2">
+                            {% for feature, importance in feature_importance.items() %}
+                            <div class="flex items-center">
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-900">{{ feature }}</p>
+                                </div>
+                                <div class="ml-4 w-24">
+                                    <div class="relative h-2 bg-gray-200 rounded">
+                                        <div class="absolute h-2 bg-blue-500 rounded" style="width: {{ importance * 100 }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
 </div>
 
-<!-- Delete Account Modal -->
-<div class="modal fade" id="deleteAccountModal" tabindex="-1" role="dialog" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteAccountModalLabel">Потвърждение за изтриване</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Сигурни ли сте, че искате да изтриете профила си? Това действие не може да бъде отменено.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отказ</button>
-                <form action="{{ url_for('auth.delete_account') }}" method="POST" style="display: inline;">
-                    <button type="submit" class="btn btn-danger">Изтрий профила</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+<script>
+function confirmDelete() {
+    if (confirm('Сигурни ли сте, че искате да изтриете профила си? Това действие е необратимо.')) {
+        window.location.href = "{{ url_for('auth.delete_profile') }}";
+    }
+}
+</script>
 {% endblock %} 

@@ -1,32 +1,92 @@
 {% extends "base.html" %}
 
-{% block app_content %}
-<div class="jumbotron">
-    <h1 class="display-4">Welcome to Job Success Compass</h1>
-    <p class="lead">Predict your job application success using machine learning!</p>
-    <hr class="my-4">
-    <p>Our system uses advanced algorithms to analyze your profile and predict the likelihood of success in your job applications.</p>
-    {% if current_user.is_anonymous %}
-    <p class="lead">
-        <a class="btn btn-primary btn-lg" href="{{ url_for('auth.register') }}" role="button">Get Started</a>
-        <a class="btn btn-secondary btn-lg" href="{{ url_for('auth.login') }}" role="button">Sign In</a>
-    </p>
-    {% else %}
-    <p class="lead">
-        <a class="btn btn-primary btn-lg" href="{{ url_for('survey.new_survey') }}" role="button">Submit Survey</a>
-        <a class="btn btn-secondary btn-lg" href="{{ url_for('main.dashboard') }}" role="button">View Dashboard</a>
-    </p>
-    {% endif %}
+{% block content %}
+<div class="relative bg-white overflow-hidden">
+    <div class="max-w-7xl mx-auto">
+        <div class="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
+            <main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 lg:mt-16 lg:px-8 xl:mt-20">
+                <div class="sm:text-center lg:text-left">
+                    <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+                        <span class="block">Job Success</span>
+                        <span class="block text-blue-600">Compass</span>
+                    </h1>
+                    <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+                        Използвайте силата на машинното обучение, за да предскажете успеха на вашите кандидатури за работа и получете персонализирани препоръки.
+                    </p>
+                    <div class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
+                        {% if current_user.is_anonymous %}
+                        <div class="rounded-md shadow">
+                            <a href="{{ url_for('auth.register') }}" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10">
+                                Започнете сега
+                            </a>
+                        </div>
+                        <div class="mt-3 sm:mt-0 sm:ml-3">
+                            <a href="{{ url_for('auth.login') }}" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10">
+                                Вход
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="rounded-md shadow">
+                            <a href="{{ url_for('survey.new_survey') }}" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10">
+                                Нова анкета
+                            </a>
+                        </div>
+                        <div class="mt-3 sm:mt-0 sm:ml-3">
+                            <a href="{{ url_for('main.dashboard') }}" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10">
+                                Към таблото
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
 </div>
 
-<div class="row">
-    <div class="col-md-6">
-        <h3>Submit Surveys</h3>
-        <p>Share your job application experiences to help improve our predictions and help others learn from your journey.</p>
-    </div>
-    <div class="col-md-6">
-        <h3>Get Insights</h3>
-        <p>Receive personalized predictions and visualizations to understand your chances of success.</p>
+<div class="bg-gray-50 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="lg:text-center">
+            <h2 class="text-base text-blue-600 font-semibold tracking-wide uppercase">Функционалности</h2>
+            <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                По-добър начин за намиране на работа
+            </p>
+            <p class="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
+                Нашата платформа комбинира изкуствен интелект с реални данни, за да ви помогне да постигнете успех.
+            </p>
+        </div>
+
+        <div class="mt-10">
+            <div class="space-y-10 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
+                <div class="relative">
+                    <dt>
+                        <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
+                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                        <p class="ml-16 text-lg leading-6 font-medium text-gray-900">Анализ на данни</p>
+                    </dt>
+                    <dd class="mt-2 ml-16 text-base text-gray-500">
+                        Споделете своя опит и помогнете за подобряване на нашите прогнози, докато помагате на други да учат от вашето пътуване.
+                    </dd>
+                </div>
+
+                <div class="relative">
+                    <dt>
+                        <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
+                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <p class="ml-16 text-lg leading-6 font-medium text-gray-900">Персонализирани прогнози</p>
+                    </dt>
+                    <dd class="mt-2 ml-16 text-base text-gray-500">
+                        Получете персонализирани прогнози и визуализации, за да разберете шансовете си за успех във всяка кандидатура.
+                    </dd>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %} 
