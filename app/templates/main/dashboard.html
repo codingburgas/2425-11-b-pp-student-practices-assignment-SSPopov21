@@ -43,14 +43,15 @@
                                             {{ survey.created_at.strftime('%Y-%m-%d') }}
                                         </p>
                                     </div>
+                                    <p>Probability: {{ '%.1f' % survey.probability_percent if survey.probability_percent is not none else 'N/A' }}%</p>
                                     <div class="flex items-center space-x-2">
-                                        {% if survey.success %}
+                                        {% if survey.probability_percent is not none and survey.probability_percent > 60 %}
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            Успешна
+                                            Успешна ({{ '%.1f' % survey.probability_percent }}%)
                                         </span>
                                         {% else %}
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                            Неуспешна
+                                            Неуспешна{% if survey.probability_percent is not none %} ({{ '%.1f' % survey.probability_percent }}%){% endif %}
                                         </span>
                                         {% endif %}
                                         {% if survey.is_public %}
@@ -105,14 +106,15 @@
                                             {{ survey.created_at.strftime('%Y-%m-%d') }} от {{ survey.author.username }}
                                         </p>
                                     </div>
+                                    <p>Probability: {{ '%.1f' % survey.probability_percent if survey.probability_percent is not none else 'N/A' }}%</p>
                                     <div>
-                                        {% if survey.success %}
+                                        {% if survey.probability_percent is not none and survey.probability_percent > 60 %}
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            Успешна
+                                            Успешна ({{ '%.1f' % survey.probability_percent }}%)
                                         </span>
                                         {% else %}
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                            Неуспешна
+                                            Неуспешна{% if survey.probability_percent is not none %} ({{ '%.1f' % survey.probability_percent }}%){% endif %}
                                         </span>
                                         {% endif %}
                                     </div>

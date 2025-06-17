@@ -169,7 +169,7 @@ def apply_job(id):
             else:
                 color = 'red'
 
-            flash(f'Вашата кандидатура е изпратена успешно! Вероятност за одобрение: <span style="color: {color}; font-weight: bold;">{probability_percent:.1f}%</span>', 'success')
+            flash(f'Шансът да бъдете нает е "{probability_percent:.1f}%"', 'success')
             return redirect(url_for('job_offers.list_jobs'))
         except Exception as e:
             print(f"Prediction error: {str(e)}")
