@@ -170,3 +170,121 @@ Project Link: [https://github.com/yourusername/job-success-compass](https://gith
 - [NumPy](https://numpy.org/)
 - [React](https://reactjs.org/)
 - All our contributors and supporters
+
+## Project Overview
+
+Job Success Compass is a web application designed to help job seekers improve their chances of success in job applications. It uses a machine learning model (logistic regression) to predict the probability of success based on various factors submitted by users through surveys. Employers can also post job offers, and job seekers can apply, receiving an instant success prediction.
+
+The application includes:
+- User authentication and roles (worker, employer, admin).
+- A dashboard for users to view their survey results and public survey data.
+- Functionality for job seekers to submit surveys about their experience, education, skills, etc.
+- A machine learning model that predicts job application success probability.
+- Job offer management for employers (create, edit, toggle active status, delete).
+- A quick prediction feature for job offers without full application.
+
+## Features
+
+- **User Authentication:** Secure registration and login for job seekers and employers.
+- **Role-Based Access:** Different functionalities based on user roles (worker, employer, admin).
+- **Interactive Dashboard:** Personalized insights for job seekers, including success probability of their applications.
+- **Survey Submission:** Users can submit detailed surveys about their professional background.
+- **Machine Learning Predictions:**
+    - Logistic Regression model for predicting job application success.
+    - Provides a percentage chance of approval and identifies key influencing factors.
+- **Job Offer Management:**
+    - Employers can create, view, edit, and delete job offers.
+    - Ability to activate/deactivate job offers.
+- **Responsive UI:** Built with Flask and Tailwind CSS for a modern and responsive design.
+
+## Setup and Installation
+
+Follow these steps to get the Job Success Compass up and running on your local machine.
+
+### Prerequisites
+
+- Python 3.8+
+- pip (Python package installer)
+- Git (optional, for cloning the repository)
+
+### 1. Clone the Repository (Optional)
+
+If you haven't already, clone the project repository:
+```bash
+git clone <repository_url>
+cd 2425-11-b-pp-student-practices-assignment-SSPopov21
+```
+
+### 2. Create a Virtual Environment
+
+It's recommended to use a virtual environment to manage dependencies:
+```bash
+python -m venv venv
+```
+
+### 3. Activate the Virtual Environment
+
+- **On Windows:**
+  ```bash
+  .\venv\Scripts\activate
+  ```
+- **On macOS/Linux:**
+  ```bash
+  source venv/bin/activate
+  ```
+
+### 4. Install Dependencies
+
+Install the required Python packages:
+```bash
+pip install -r requirements.txt
+```
+*(If `requirements.txt` is not present, you might need to create it manually or install packages individually: `pip install Flask Flask-SQLAlchemy Flask-Migrate Flask-Login Flask-Mail Flask-WTF python-dotenv scikit-learn numpy pandas joblib`)*
+
+### 5. Initialize the Database
+
+The application uses SQLite by default. Run the database migrations:
+```bash
+flask db init
+flask db migrate -m "Initial migration"
+flask db upgrade
+```
+
+### 6. Run the Application
+
+```bash
+flask run
+```
+
+The application should now be running on `http://127.0.0.1:5000`.
+
+## Usage
+
+- **Register:** Create a new user account (select 'worker' or 'employer' role).
+- **Login:** Access your dashboard.
+- **Worker (Job Seeker):**
+    - Submit a new survey with your professional details.
+    - View job offers and apply to get an instant success prediction.
+    - Check your dashboard for survey results and success probabilities.
+- **Employer:**
+    - Publish new job offers.
+    - Manage your existing job offers (edit, activate/deactivate, delete).
+- **Admin:** (If you set `is_admin=True` for a user in the database)
+    - Access the admin dashboard for user and survey management.
+
+## Technologies Used
+
+- **Backend:** Flask (Python)
+- **Database:** SQLite (SQLAlchemy ORM, Flask-Migrate)
+- **Frontend:** HTML, Tailwind CSS, Jinja2 (templating)
+- **Machine Learning:** Scikit-learn, NumPy (for logistic regression model)
+- **User Management:** Flask-Login
+- **Forms:** Flask-WTF
+
+## Contributing
+
+Contributions are welcome! Please fork the repository and submit a pull request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

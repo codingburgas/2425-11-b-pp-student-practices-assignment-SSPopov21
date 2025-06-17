@@ -4,6 +4,8 @@ from app import db
 from app.models.user import User
 from app.models.survey import Survey
 from functools import wraps
+import os
+from flask import current_app
 
 bp = Blueprint('admin', __name__)
 
@@ -65,4 +67,40 @@ def delete_survey(id):
     db.session.delete(survey)
     db.session.commit()
     flash('Survey has been deleted.')
+    return redirect(url_for('admin.admin_dashboard'))
+
+@bp.route('/model/delete', methods=['POST'])
+@login_required
+@admin_required
+def delete_model():
+    """Delete the trained ML model and scaler files"""
+    model_path = os.path.join(current_app.root_path, 'ml', 'job_success_model.pkl')
+    scaler_path = os.path.join(current_app.root_path, 'ml', 'scaler.pkl')
+
+    deleted_files = []
+    errors = []
+
+    if os.path.exists(model_path):
+        try:
+            os.remove(model_path)
+            deleted_files.append('job_success_model.pkl')
+        except OSError as e:
+            errors.append(f'Error deleting job_success_model.pkl: {e}')
+    else:
+        errors.append('job_success_model.pkl not found.')
+
+    if os.path.exists(scaler_path):
+        try:
+            os.remove(scaler_path)
+            deleted_files.append('scaler.pkl')
+        except OSError as e:
+            errors.append(f'Error deleting scaler.pkl: {e}')
+    else:
+        errors.append('scaler.pkl not found.')
+
+    if deleted_files:
+        flash(f'Successfully deleted: {", ".join(deleted_files)}.', 'success')
+    if errors:
+        flash(f'Errors occurred: {", ".join(errors)}', 'error')
+    
     return redirect(url_for('admin.admin_dashboard')) 

@@ -89,5 +89,20 @@
             </div>
         </div>
     </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Model Management</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">This action will delete the trained machine learning model and scaler files from the server. The model will be retrained with synthetic data on the next prediction request if no real data is available.</p>
+                <form action="{{ url_for('admin.delete_model') }}" method="POST" onsubmit="return confirm('Are you sure you want to delete the trained model? This action cannot be undone.');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger">Delete Trained Model</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %} 
