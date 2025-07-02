@@ -4,16 +4,17 @@ from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationE
 from app.models.user import User
 
 class LoginForm(FlaskForm):
-    username = StringField('Потребителско име', validators=[DataRequired()])
+    username = StringField('Потребителско име')
+    admin_code = StringField('Код за администратор')
     password = PasswordField('Парола', validators=[DataRequired()])
     remember_me = BooleanField('Запомни ме')
     submit = SubmitField('Вход')
 
 class RegistrationForm(FlaskForm):
-    username = StringField('Потребителско име', validators=[DataRequired(), Length(min=3, max=64)])
-    email = StringField('Имейл', validators=[DataRequired(), Email(), Length(max=120)])
+    username = StringField('Потребителско име', validators=[Length(min=3, max=64)])
+    email = StringField('Имейл', validators=[Email(), Length(max=120)])
     password = PasswordField('Парола', validators=[DataRequired(), Length(min=6)])
-    password2 = PasswordField('Повтори паролата', validators=[DataRequired(), EqualTo('password', message='Паролите трябва да съвпадат')])
+    password2 = PasswordField('Повтори паролата', validators=[EqualTo('password', message='Паролите трябва да съвпадат')])
     role = SelectField('Тип потребител', choices=[
         ('worker', 'Търсещ работа'),
         ('employer', 'Работодател')

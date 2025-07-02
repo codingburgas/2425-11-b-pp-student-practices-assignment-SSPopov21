@@ -19,7 +19,7 @@
             <form method="POST" class="space-y-6">
                 {{ form.hidden_tag() }}
                 
-                <div>
+                <div id="username-field">
                     <label for="username" class="block text-sm font-medium text-gray-700">
                         Потребителско име
                     </label>
@@ -31,7 +31,7 @@
                     {% endif %}
                 </div>
 
-                <div>
+                <div id="email-field">
                     <label for="email" class="block text-sm font-medium text-gray-700">
                         Имейл адрес
                     </label>
@@ -43,7 +43,7 @@
                     {% endif %}
                 </div>
 
-                <div>
+                <div id="password-field">
                     <label for="password" class="block text-sm font-medium text-gray-700">
                         Парола
                     </label>
@@ -55,7 +55,7 @@
                     {% endif %}
                 </div>
 
-                <div>
+                <div id="password2-field">
                     <label for="password2" class="block text-sm font-medium text-gray-700">
                         Повторете паролата
                     </label>
@@ -72,7 +72,7 @@
                         Тип потребител
                     </label>
                     <div class="mt-1">
-                        {{ form.role(class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm") }}
+                        {{ form.role(class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", id="role-select") }}
                     </div>
                     {% if form.role.errors %}
                     <p class="mt-2 text-sm text-red-600">{{ form.role.errors[0] }}</p>
@@ -88,4 +88,15 @@
         </div>
     </div>
 </div>
+<script>
+    function toggleAdminFields() {
+        var role = document.getElementById('role-select').value;
+        var isAdmin = role === 'admin';
+        document.getElementById('username-field').style.display = isAdmin ? 'none' : '';
+        document.getElementById('email-field').style.display = isAdmin ? 'none' : '';
+        document.getElementById('password2-field').style.display = isAdmin ? 'none' : '';
+    }
+    document.getElementById('role-select').addEventListener('change', toggleAdminFields);
+    window.onload = toggleAdminFields;
+</script>
 {% endblock %} 
