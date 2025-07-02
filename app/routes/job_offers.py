@@ -1,12 +1,13 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request, jsonify
 from flask_login import login_required, current_user
-from app import db
+from app import db, mail
 from app.models.job_offer import JobOffer
 from app.models.survey import Survey
 from app.forms.job_offer import JobOfferForm
 from app.forms.job_application import JobApplicationForm
 from app.ml.model import JobSuccessPredictor
 import numpy as np
+from flask_mail import Message
 
 bp = Blueprint('job_offers', __name__)
 
@@ -129,7 +130,8 @@ def apply_job(id):
             prev_job_changes=form.prev_job_changes.data,
             certifications=form.certifications.data,
             language_proficiency=int(form.language_proficiency.data) / 5.0,  # Normalize to 0-1
-            interview_prep_score=form.interview_prep_score.data / 10.0  # Normalize to 0-1
+            interview_prep_score=form.interview_prep_score.data / 10.0,  # Normalize to 0-1
+            job_offer_id=job_offer.id
         )
 
         # Get prediction
@@ -168,6 +170,31 @@ def apply_job(id):
                 color = 'orange'
             else:
                 color = 'red'
+
+            # Send email to employer if probability is over 60%
+            if probability_percent >= 60:
+                employer_email = job_offer.employer.email
+                msg = Message(
+                    subject=f"Нов кандидат с {probability_percent:.1f}% шанс за успех",
+                    recipients=[employer_email],
+                    body=f"Имате нов кандидат за вашата обява '{job_offer.title}'.\n\n"
+                         f"Потребител: {current_user.username} (имейл: {current_user.email})\n"
+                         f"Шанс за успех: {probability_percent:.1f}%\n\n"
+                         f"Детайли на кандидатурата:\n"
+                         f"Години опит: {form.years_experience.data}\n"
+                         f"Образование: {form.education_level.data}\n"
+                         f"Индустрия: {form.industry_type.data}\n"
+                         f"Умения: {form.skills.data}\n"
+                         f"Сертификати: {form.certifications.data}\n"
+                         f"Ниво на език: {form.language_proficiency.data}\n"
+                         f"Подготовка за интервю: {form.interview_prep_score.data}\n"
+                         f"Брой предишни работни места: {form.prev_job_changes.data}\n"
+                         f"Мотивационно писмо: {form.motivation_letter.data}\n"
+                )
+                try:
+                    mail.send(msg)
+                except Exception as e:
+                    print(f"Email sending error: {str(e)}")
 
             flash(f'Шансът да бъдете нает е "{probability_percent:.1f}%"', 'success')
             return redirect(url_for('job_offers.list_jobs'))

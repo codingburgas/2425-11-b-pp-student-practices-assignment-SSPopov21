@@ -53,7 +53,24 @@ def dashboard():
         Survey.is_public == True
     ).all()
     
+    # For employers: show candidates with >60% probability for their job offers
+    top_candidates = []
+    if current_user.is_employer():
+        from app.models.job_offer import JobOffer
+        my_offers = JobOffer.query.filter_by(employer_id=current_user.id).all()
+        offer_ids = [offer.id for offer in my_offers]
+        candidate_surveys = Survey.query.filter(Survey.job_offer_id.in_(offer_ids)).all() if offer_ids else []
+        for survey in candidate_surveys:
+            try:
+                probability = predictor.predict(survey)
+                if probability * 100 > 60:
+                    survey.probability_percent = probability * 100
+                    top_candidates.append(survey)
+            except Exception:
+                continue
+
     return render_template('main/dashboard.html',
                          title='Табло',
                          user_surveys=user_surveys,
-                         public_surveys=public_surveys) 
+                         public_surveys=public_surveys,
+                         top_candidates=top_candidates) 

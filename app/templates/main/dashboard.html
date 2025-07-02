@@ -4,6 +4,34 @@
 <div class="py-6">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 class="text-2xl font-semibold text-gray-900">Табло</h1>
+        {% if current_user.is_employer() %}
+        <div class="mt-6">
+            <div class="bg-green-50 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 border-b border-green-200">
+                    <h2 class="text-lg font-medium text-green-900 mb-4">Топ кандидати за вашите обяви (над 60% шанс)</h2>
+                    {% if top_candidates and top_candidates|length > 0 %}
+                    <ul class="divide-y divide-green-200">
+                        {% for survey in top_candidates %}
+                        <li class="py-4 flex flex-col md:flex-row md:items-center md:space-x-6">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900">{{ survey.author.username }} (<a href="mailto:{{ survey.author.email }}" class="text-blue-600 underline">{{ survey.author.email }}</a>)</p>
+                                <p class="text-sm text-gray-500">Кандидатства за: <span class="font-semibold">{{ survey.job_offer.title if survey.job_offer else '?' }}</span></p>
+                            </div>
+                            <div class="mt-2 md:mt-0">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    {{ '%.1f' % survey.probability_percent }}% шанс за успех
+                                </span>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-gray-600">Няма кандидати с над 60% шанс за успех към вашите обяви.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
         
         <div class="mt-6">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">

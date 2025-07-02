@@ -7,6 +7,7 @@ class Survey(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_public = db.Column(db.Boolean, default=False)
     success = db.Column(db.Boolean)  # Target variable (successful application or not)
+    job_offer_id = db.Column(db.Integer, db.ForeignKey('job_offer.id'), nullable=True)
     
     # Features
     years_experience = db.Column(db.Float, nullable=False)
